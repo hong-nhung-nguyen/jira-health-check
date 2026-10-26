@@ -113,10 +113,37 @@ health-check/
         └── index.jsx       ← the Sprint Health panel (UI Kit)
 ```
 
-The manifest will need this, which HelloWorld doesn't have yet:
+The app only asks for read access:
 
 ```yaml
 permissions:
   scopes:
     - read:jira-work
 ```
+
+---
+
+## 5. Scripts
+
+Run these from the `health-check/` folder.
+
+### npm scripts
+
+| Command | What it does |
+|---|---|
+| `npm install` | Installs dependencies into `node_modules/` |
+| `npm run lint` | Checks `src/` for mistakes with ESLint (rules in `.eslintrc`). No output means no problems. |
+| `npm test` | Runs the unit tests with Node's built-in test runner (`node --test`), which finds every `*.test.js` file |
+
+### Forge commands
+
+| Command | When to use it |
+|---|---|
+| `forge tunnel` | While coding: code changes show up after a browser refresh, with no deploy |
+| `forge deploy` | After changing `manifest.yml`, or to update the deployed version |
+| `forge install --upgrade` | After adding a scope, so the site gets the new permissions |
+| `forge lint` | Checks the manifest for mistakes before deploying |
+| `forge logs` | Shows logs from the deployed app (with the tunnel running, logs print in the tunnel terminal instead) |
+
+Adding a scope or module makes a new major version, so deploy with
+`forge deploy --approve MAJOR_VERSION_RULE`, then run `forge install --upgrade`.
