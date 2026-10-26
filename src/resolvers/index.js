@@ -1,10 +1,37 @@
-import Resolver from '@forge/resolver';
+import Resolver from '@forge/resolver'; // Loads the Resolver class, which lets define backend functions and frontend can call by name 
+/**
+ * Loads the tools for calling jira's REST APIs
+ * + api: object that makes requests (api.asUser(), api.asApp())
+ * + route: builds API URLs safely 
+ */
+import api, { route } from '@forge/api'; 
 
-const resolver = new Resolver();
+const resolver = new Resolver(); // Creates a resolver 
 
-resolver.define('getText', (req) => {
-  console.log(req);
-  return 'Sprint Health';
+/**
+ * Register a function called getText. The name has to match what the frontend calls
+ * 
+ * --- src/frontend/index.jsx
+ * invoke('getText', { example: 'my-invoke-variable' })
+ * 
+ * + req: holds what the frontend sent 
+ *    - req.payload: the data passed in ( { example: 'my-invoke-variable' })
+ *    - req.context: info about where the page is open (e.g. req.context.extension.project.key === "BT")
+ */
+resolver.define('getText', async (req) => {
+
+  /**
+   * + api.asUser(): make the request as the person viewing the page (That's why we have 
+   *    the Allow Access button --> they only see data they are already allowed to see)
+   * 
+   * + .requestJira(...): sends an HTTP request to this Jira site. Forge fills in the site
+   *    addreass and login for you, so there is no URL or API in the code
+   *
+   * + route`/rest/api/3/myself`: the endpoint path that returns the current user's details 
+   */
+  const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
+  console.log("myself status", res.status);
+  return `Jira API status: ${res.status}`;
 });
 
 export const handler = resolver.getDefinitions();
