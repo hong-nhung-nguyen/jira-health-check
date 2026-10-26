@@ -1,0 +1,52 @@
+{
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+  "id": "10012",
+  "self": "https://honhu2ng.atlassian.net/rest/api/3/issue/10012",
+  "key": "BT-12",
+  "fields": {
+    "statuscategorychangedate": "2026-10-26T23:04:02.731+1100",
+    "customfield_10016": 3.0,
+    "summary": "Verify identical payloads fail against secure_app",
+    "customfield_10020": [
+      {
+        "id": 2,
+        "name": "BOOK Sprint 1",
+        "state": "active",
+        "boardId": 3,
+        "goal": "",
+        "startDate": "2026-10-15T11:44:01.795Z",
+        "endDate": "2026-10-29T11:44:01.795Z",
+        "completeDate": "2026-10-29T11:44:01.795Z"
+      }
+    ],
+    "assignee": {
+      "self": "https://honhu2ng.atlassian.net/rest/api/3/user?accountId=712020%3A38903350-8e2b-4845-9d86-7dc620866924",
+      "accountId": "712020:38903350-8e2b-4845-9d86-7dc620866924",
+      "emailAddress": "honhu2ng@gmail.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/d262bca5502be25960dd830f53bcff4b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Fdefault%2Fdefault-avatar-6.png",
+        "24x24": "https://secure.gravatar.com/avatar/d262bca5502be25960dd830f53bcff4b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Fdefault%2Fdefault-avatar-6.png",
+        "16x16": "https://secure.gravatar.com/avatar/d262bca5502be25960dd830f53bcff4b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Fdefault%2Fdefault-avatar-6.png",
+        "32x32": "https://secure.gravatar.com/avatar/d262bca5502be25960dd830f53bcff4b?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Fdefault%2Fdefault-avatar-6.png"
+      },
+      "displayName": "Hong Nhung Nguyen ",
+      "active": true,
+      "timeZone": "Australia/Sydney",
+      "accountType": "atlassian"
+    },
+    "status": {
+      "self": "https://honhu2ng.atlassian.net/rest/api/3/status/3",
+      "description": "This work item is being actively worked on at the moment by the assignee.",
+      "iconUrl": "https://honhu2ng.atlassian.net/images/icons/statuses/inprogress.png",
+      "name": "In Progress",
+      "id": "3",
+      "statusCategory": {
+        "self": "https://honhu2ng.atlassian.net/rest/api/3/statuscategory/4",
+        "id": 4,
+        "key": "indeterminate",
+        "colorName": "yellow",
+        "name": "In Progress"
+      }
+    }
+  }
+}

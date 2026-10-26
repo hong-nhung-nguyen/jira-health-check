@@ -20,7 +20,7 @@ export const getActiveSprints = (
   return null;
 };
 
-export const getDaysLeft = (endDate, now) => {
+export const getDaysLeft = (endDate, now = new Date()) => {
   if (!endDate) return null;
 
   const MS_PER_DAY = 24 * 60 * 60 * 1000;

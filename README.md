@@ -163,7 +163,7 @@ The app assumes **one active sprint per project**. A project can have several at
 
 **What happens now:** the JQL `sprint in openSprints()` returns issues from **every** active sprint, so
 progress, flags and the score are calculated across all of them together. The header shows the
-**first active sprint found** (`getActiveSprint` in `src/lib/sprint.js`), so its name and days left
+**first active sprint found** (`getActiveSprints` in `src/lib/sprint.js`), so its name and days left
 may not describe every issue counted.
 
 Within a single sprint this can't go wrong: every issue in a sprint points to the same sprint object,

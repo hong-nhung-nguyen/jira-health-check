@@ -9,6 +9,7 @@ import api, { route } from "@forge/api";
 import { getFieldIds } from "../jira/fields";
 import { getSprintIssues } from "../jira/search";
 import { getActiveSprints } from "../lib/sprint";
+import { normalizeIssue } from "../jira/normalize";
 const resolver = new Resolver(); // Creates a resolver
 
 /**
@@ -36,6 +37,10 @@ resolver.define("getText", async (req) => {
   // get active sprint issues
   const issues = await getSprintIssues(projectKey, fieldIds);
   console.log(`fetched ${issues.length} issues`);
+
+  // normalize issue shape
+  const simpleIssues = issues.map((raw) => normalizeIssue(raw, fieldIds));
+  console.log("issues", simpleIssues);
 
   // get sprint name, dates, and remaining days
   const sprint = getActiveSprints(issues, fieldIds.sprint);
