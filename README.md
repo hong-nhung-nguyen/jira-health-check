@@ -149,3 +149,46 @@ Run these from the `health-check/` folder.
 
 Adding a scope or module makes a new major version, so deploy with
 `forge deploy --approve MAJOR_VERSION_RULE`, then run `forge install --upgrade`.
+
+---
+
+## 6. Known limitations and roadmap
+
+### More than one active sprint in a project
+
+The app assumes **one active sprint per project**. A project can have several at once, when:
+
+- it has **more than one board** (e.g. two teams), each running its own sprint, or
+- the site has **parallel sprints** turned on.
+
+**What happens now:** the JQL `sprint in openSprints()` returns issues from **every** active sprint, so
+progress, flags and the score are calculated across all of them together. The header shows the
+**first active sprint found** (`getActiveSprints` in `src/lib/sprint.js`), so its name and days left
+may not describe every issue counted.
+
+Within a single sprint this can't go wrong: every issue in a sprint points to the same sprint object,
+so they all share one name and one end date.
+
+**Planned:**
+
+1. **Warn:** collect all distinct active sprints (by `id`), and when there's more than one, show
+   "This project has N active sprints. Showing combined health."
+2. **Sprint picker:** let the user choose a sprint from a dropdown. The frontend sends the chosen
+   `sprintId` to the resolver, which searches with `sprint = <id>` instead of `openSprints()`.
+   The ID comes from the browser, so the resolver must accept only a whole number before putting
+   it into JQL.
+
+### Days left can differ from Jira by one
+
+`daysLeft` is the exact time until the sprint's `endDate`, **rounded up** to whole days
+(`getDaysLeft` in `src/lib/sprint.js`), so a sprint with 2 hours left shows 1 day, not 0.
+Jira's own "N days remaining" counts differently and uses the site's time zone, while `endDate`
+is in UTC. The two can differ by **one day**, depending on the time of day.
+
+### Story points field detection
+
+The story points field is found by name: "Story point estimate" first, then a **number** field
+called "Story Points" (`src/jira/fields.js`). A site with an unusual setup could match the wrong
+field. **Planned:** read the field the board actually uses for estimation from the board
+configuration API (`/rest/agile/1.0/board/{id}/configuration`). This needs an extra Jira Software
+scope.

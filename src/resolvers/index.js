@@ -6,6 +6,10 @@ import Resolver from "@forge/resolver"; // Loads the Resolver class, which lets 
  */
 import api, { route } from "@forge/api";
 
+import { getFieldIds } from "../jira/fields";
+import { getSprintIssues } from "../jira/search";
+import { getActiveSprints } from "../lib/sprint";
+import { normalizeIssue } from "../jira/normalize";
 const resolver = new Resolver(); // Creates a resolver
 
 /**
@@ -19,6 +23,29 @@ const resolver = new Resolver(); // Creates a resolver
  *    - req.context: info about where the page is open (e.g. req.context.extension.project.key === "BT")
  */
 resolver.define("getText", async (req) => {
+  // Returns undefined instead of crashing if the page wasn't opened from a project
+  const projectKey = req.context?.extension?.project?.key;
+  if (!projectKey) {
+    return { error: "NO_PROJECT_CONTEXT" };
+  }
+  console.log("projectKey", projectKey);
+
+  // get story point and sprint ids
+  const fieldIds = await getFieldIds();
+  console.log("fieldIds", fieldIds);
+
+  // get active sprint issues
+  const issues = await getSprintIssues(projectKey, fieldIds);
+  console.log(`fetched ${issues.length} issues`);
+
+  // normalize issue shape
+  const simpleIssues = issues.map((raw) => normalizeIssue(raw, fieldIds));
+  console.log("issues", simpleIssues);
+
+  // get sprint name, dates, and remaining days
+  const sprint = getActiveSprints(issues, fieldIds.sprint);
+  console.log("sprint meta", sprint);
+
   /**
    * + api.asUser(): make the request as the person viewing the page (That's why we have
    *    the Allow Access button --> they only see data they are already allowed to see)
