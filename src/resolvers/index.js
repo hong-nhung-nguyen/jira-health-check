@@ -6,6 +6,7 @@ import Resolver from "@forge/resolver"; // Loads the Resolver class, which lets 
  */
 import api, { route } from "@forge/api";
 
+import { getFieldIds } from "../jira/fields";
 const resolver = new Resolver(); // Creates a resolver
 
 /**
@@ -25,6 +26,9 @@ resolver.define("getText", async (req) => {
     return { error: "NO_PROJECT_CONTEXT" };
   }
   console.log("projectKey", projectKey);
+
+  const fieldIds = await getFieldIds();
+  console.log("fieldIds", fieldIds);
 
   /**
    * + api.asUser(): make the request as the person viewing the page (That's why we have
