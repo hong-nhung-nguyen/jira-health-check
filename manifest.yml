@@ -1,0 +1,20 @@
+modules:
+  jira:projectPage:
+    - key: sprint-health-hello-world-project-page
+      resource: main
+      resolver:
+        function: resolver
+      render: native
+      title: sprint-health
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: src/frontend/index.jsx
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/aac4fd28-d7a5-45fa-b106-93fb7d8ad7ab
