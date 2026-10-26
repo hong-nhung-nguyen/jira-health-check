@@ -1,0 +1,22 @@
+name: CI
+
+on: # Run on every push to any branch, and one every PR
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest # GitHub gives a fresh Linux machine each time
+    steps:
+      - uses: actions/checkout@v4 # Download repo onto that machine
+
+      - uses: actions/setup-node@v4 # Install Node 24
+        with:
+          node-version: 24
+          cache: npm # Makes later runs faster
+
+      - run: npm ci # Like npm install, but installs exactly what's in package-lock.json --> Faster and the same every time
+
+      # If either fails, the runs goes ❌ red.
+      - run: npm run lint
+      - run: npm test
