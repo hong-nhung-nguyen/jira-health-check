@@ -9,7 +9,7 @@ const App = () => {
   }, []);
   return (
     <>
-      <Text>Hello world!</Text>
+      <Text>Sprint Health</Text>
       <Text>{data ? data : 'Loading...'}</Text>
     </>
   );

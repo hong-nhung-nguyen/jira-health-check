@@ -1,11 +1,11 @@
 modules:
   jira:projectPage:
-    - key: sprint-health-hello-world-project-page
+    - key: sprint-health-project-page
       resource: main
       resolver:
         function: resolver
       render: native
-      title: sprint-health
+      title: Sprint Health
   function:
     - key: resolver
       handler: index.handler
