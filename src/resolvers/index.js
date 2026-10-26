@@ -8,6 +8,7 @@ import api, { route } from "@forge/api";
 
 import { getFieldIds } from "../jira/fields";
 import { getSprintIssues } from "../jira/search";
+import { getActiveSprints } from "../lib/sprint";
 const resolver = new Resolver(); // Creates a resolver
 
 /**
@@ -35,6 +36,10 @@ resolver.define("getText", async (req) => {
   // get active sprint issues
   const issues = await getSprintIssues(projectKey, fieldIds);
   console.log(`fetched ${issues.length} issues`);
+
+  // get sprint name, dates, and remaining days
+  const sprint = getActiveSprints(issues, fieldIds.sprint);
+  console.log("sprint meta", sprint);
 
   /**
    * + api.asUser(): make the request as the person viewing the page (That's why we have
