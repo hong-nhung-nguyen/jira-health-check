@@ -10,7 +10,7 @@ import { getFieldIds } from "../jira/fields";
 import { getSprintIssues } from "../jira/search";
 import { getActiveSprints } from "../lib/sprint";
 import { normalizeIssue } from "../jira/normalize";
-import { getProgress } from "../lib/health";
+import { getProgress, getFlaggedIssues } from "../lib/health";
 const resolver = new Resolver(); // Creates a resolver
 
 /**
@@ -46,6 +46,10 @@ resolver.define("getText", async (req) => {
   // calculate progress (done vs. remaining)
   const sprintProgress = getProgress(simpleIssues);
   console.log("progress", sprintProgress);
+
+  // get flagged issues
+  const flaggedIssues = getFlaggedIssues(simpleIssues, new Date());
+  console.log("flagged", flaggedIssues);
 
   // get sprint name, dates, and remaining days
   const sprint = getActiveSprints(issues, fieldIds.sprint);
