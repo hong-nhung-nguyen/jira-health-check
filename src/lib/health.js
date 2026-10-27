@@ -111,3 +111,36 @@ export const getFlaggedIssues = (
     }))
     .filter((issue) => issue.flags.length > 0)
     .sort(bySeverity);
+
+// ---------------- Calculate health score ------------------------
+
+export const getScore = (flaggedIssues, config = DEFAULT_CONFIG) => {
+  let stuck = 0;
+  let unassigned = 0;
+  let unestimated = 0;
+
+  for (const issue of flaggedIssues) {
+    if (issue.flags.includes("stuck")) stuck++;
+    if (issue.flags.includes("unassigned")) unassigned++;
+    if (issue.flags.includes("unestimated")) unestimated++;
+  }
+
+  let score = Math.max(
+    0,
+    100 -
+      stuck * config.PENALTY.stuck -
+      unassigned * config.PENALTY.unassigned -
+      unestimated * config.PENALTY.unestimated,
+  );
+
+  return {
+    score,
+    breakdown: { stuck, unassigned, unestimated },
+  };
+};
+
+export const getStatus = (score, config = DEFAULT_CONFIG) => {
+  if (score >= config.THRESHOLD.green) return "green";
+  if (score >= config.THRESHOLD.amber) return "amber";
+  return "red";
+};

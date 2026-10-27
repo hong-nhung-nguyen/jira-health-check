@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { getProgress, getFlags, getFlaggedIssues } from "../src/lib/health.js";
+import {
+  getProgress,
+  getFlags,
+  getFlaggedIssues,
+  getScore,
+  getStatus,
+} from "../src/lib/health.js";
 import { DEFAULT_CONFIG } from "../src/lib/config.js";
 import {
   NOW,
@@ -180,4 +186,43 @@ test("getFlaggedIssues: does not change the input issues", () => {
 test("getFlaggedIssues: BT sprint matches docs/expected-results.md", () => {
   const keys = getFlaggedIssues(btSprint, NOW, STUCK_0).map((i) => i.key);
   assert.deepEqual(keys, ["BT-12", "BT-14", "BT-15", "BT-16", "BT-17"]);
+});
+
+// ------------- getScore -------------
+
+test("getScore: BT sprint with STUCK_DAYS = 0 -> 55", () => {
+  const result = getScore(getFlaggedIssues(btSprint, NOW, STUCK_0));
+  assert.deepEqual(result, {
+    score: 55,
+    breakdown: { stuck: 1, unassigned: 2, unestimated: 2 },
+  });
+});
+
+test("getScore: nothing flagged -> 100", () => {
+  assert.equal(getScore([]).score, 100);
+});
+
+test("getScore: never below 0", () => {
+  const tenStuck = Array.from({ length: 10 }, (__, n) =>
+    inProgress(`BT-${n}`, { statusSince: daysAgo(10) }),
+  );
+  assert.equal(getScore(getFlaggedIssues(tenStuck, NOW)).score, 0);
+});
+
+test("getScore: an issue with several flags is penalised for each", () => {
+  const issue = inProgress("BT-1", {
+    assignee: null,
+    points: null,
+    statusSince: daysAgo(10),
+  });
+  assert.equal(getScore(getFlaggedIssues([issue], NOW)).score, 70); // 100 - 15 - 10 - 5
+});
+
+// ------------- getStatus -------------
+
+test("getStatus: boundaries", () => {
+  assert.equal(getStatus(80), "green");
+  assert.equal(getStatus(79), "amber");
+  assert.equal(getStatus(50), "amber");
+  assert.equal(getStatus(49), "red");
 });
