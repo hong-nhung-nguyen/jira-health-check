@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import ForgeReconciler, { Text } from '@forge/react';
-import { invoke } from '@forge/bridge';
+import React, { useEffect, useState } from "react";
+import ForgeReconciler, { Text } from "@forge/react";
+import { invoke } from "@forge/bridge";
 
 const App = () => {
   const [data, setData] = useState(null);
   useEffect(() => {
-    invoke('getText', { example: 'my-invoke-variable' })
-      .then(setData)
+    invoke("getSprintHealth", { example: "my-invoke-variable" })
+      .then((result) => {
+        console.log(JSON.stringify(result, null, 2));
+        setData(result);
+      })
       .catch((err) => setData(`Error: ${err.message}`));
   }, []);
   return (
     <>
-      <Text>Tunnel working...</Text>
-      <Text>{data ? data : 'Loading...'}</Text>
+      <Text>{data ? JSON.stringify(data) : "Loading..."}</Text>
     </>
   );
 };
@@ -20,5 +22,5 @@ const App = () => {
 ForgeReconciler.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
