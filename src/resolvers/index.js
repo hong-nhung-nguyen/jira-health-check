@@ -51,6 +51,8 @@ resolver.define("getSprintHealth", async (req) => {
   }
 
   try {
+    console.time("getSprintHealth");
+
     // throw Object.assign(new Error("test"), { jiraStatus: 403 }); // TEST FORBIDDEN 403 ERR
     // throw Object.assign(new Error("test"), { jiraStatus: 500 }); // TEST 500 ERR
 
@@ -66,6 +68,8 @@ resolver.define("getSprintHealth", async (req) => {
 
     // get active sprint issues
     const rawIssues = await getSprintIssues(projectKey, fieldIds);
+
+    console.log(`fetched ${rawIssues.length} issues`);
 
     if (rawIssues.length === 0) {
       return { empty: "NO_ACTIVE_SPRINT" };
@@ -97,6 +101,8 @@ resolver.define("getSprintHealth", async (req) => {
      */
     // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
 
+    console.timeEnd("getSprintHealth");
+
     return {
       sprint,
       progress,
@@ -111,6 +117,7 @@ resolver.define("getSprintHealth", async (req) => {
 
     // Full details go the logs
     console.log("getSprintHealth failed", err.jiraStatus, err.message);
+
     return {
       error: {
         code: toErrorCode(err.jiraStatus),
