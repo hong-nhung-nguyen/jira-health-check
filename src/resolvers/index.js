@@ -33,7 +33,13 @@ resolver.define("getSprintHealth", async (req) => {
 
   // get story point and sprint ids
   const fieldIds = await getFieldIds();
-  console.log("fieldIds", fieldIds);
+  // const fieldIds = { ...(await getFieldIds()), storyPoints: null }; -- FOR TESTING 
+
+  // sites without a story points field: don't flag missing estimates
+  const config = {
+    ...DEFAULT_CONFIG,
+    estimatesEnabled: fieldIds.storyPoints !== null,
+  };
 
   // get active sprint issues
   const rawIssues = await getSprintIssues(projectKey, fieldIds);
@@ -49,13 +55,13 @@ resolver.define("getSprintHealth", async (req) => {
   const progress = getProgress(simpleIssues);
 
   // get flagged issues
-  const flagged = getFlaggedIssues(simpleIssues, new Date());
+  const flagged = getFlaggedIssues(simpleIssues, new Date(), config);
 
   // get sprint name, dates, and remaining days
-  const sprint = getActiveSprints(issues, fieldIds.sprint);
+  const sprint = getActiveSprints(rawIssues, fieldIds.sprint);
 
-  const { score, breakdown } = getScore(flagged);
-  const status = getStatus(score);
+  const { score, breakdown } = getScore(flagged, config);
+  const status = getStatus(score, config);
 
   /**
    * + api.asUser(): make the request as the person viewing the page (That's why we have
@@ -75,7 +81,7 @@ resolver.define("getSprintHealth", async (req) => {
     score,
     status,
     breakdown,
-    config: DEFAULT_CONFIG,
+    config,
   };
 });
 

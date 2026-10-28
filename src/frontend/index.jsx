@@ -52,6 +52,17 @@ const App = () => {
         breakdown={data.breakdown}
         config={data.config}
       />
+      {!data.config.estimatesEnabled && (
+        <SectionMessage
+          appearance="warning"
+          title="Story points are not set up"
+        >
+          <Text>
+            No story points field was found on this site, so estimate checks are
+            off.
+          </Text>
+        </SectionMessage>
+      )}
       <ProgressSection progress={data.progress} />
       <NeedsAttention flagged={data.flagged} />
     </Stack>

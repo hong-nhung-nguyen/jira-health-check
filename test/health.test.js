@@ -226,3 +226,27 @@ test("getStatus: boundaries", () => {
   assert.equal(getStatus(50), "amber");
   assert.equal(getStatus(49), "red");
 });
+
+// ------------- Edge cases -------------
+const NO_ESTIMATES = { ...DEFAULT_CONFIG, estimatesEnabled: false };
+
+test("getFlags: estimates disabled --> no unestimated flag", () => {
+  assert.deepEqual(
+    getFlags(todo("BT-1", { points: null }), NOW, NO_ESTIMATES),
+    [],
+  );
+});
+
+test("getFlags: estimate disabled --> other flags still work", () => {
+  const issue = todo("BT-1", { points: null, assignee: null });
+  assert.deepEqual(getFlags(issue, NOW, NO_ESTIMATES), ["unassigned"]);
+});
+
+test("getScore: estimates disabled --> no estimate penalty", () => {
+  const flagged = getFlaggedIssues(btSprint, NOW, NO_ESTIMATES);
+  assert.deepEqual(getScore(flagged, NO_ESTIMATES).breakdown, {
+    stuck: 0,
+    unassigned: 2,
+    unestimated: 0,
+  });
+});
