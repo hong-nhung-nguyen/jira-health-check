@@ -13,6 +13,21 @@ import {
 import { DEFAULT_CONFIG } from "../lib/config";
 const resolver = new Resolver(); // Creates a resolver
 
+// Turns a Jira HTTP status into a code the frontend understands
+const toErrorCode = (status) => {
+  if (status === 401 || status === 403) return "FORBIDDEN";
+  if (status === 400) return "BAD_REQUEST";
+  return "UNKNOWN";
+};
+
+/**
+ * asUser() throws 401 when the viewer hasn't clicked Allow Access
+ * Forge needs that error to reach the frontend to show the consent prompt
+ * --> do not catch
+ */
+const isConsentError = (err) =>
+  err?.status === 401 && err?.jiraStatus === undefined;
+
 /**
  * Register a function called getText. The name has to match what the frontend calls
  *
@@ -27,52 +42,89 @@ resolver.define("getSprintHealth", async (req) => {
   // Returns undefined instead of crashing if the page wasn't opened from a project
   const projectKey = req.context?.extension?.project?.key;
   if (!projectKey) {
-    return { error: "NO_PROJECT_CONTEXT" };
+    return {
+      error: {
+        code: "NO_PROJECT_CONTEXT",
+        message: "Open Sprint Health from a project.",
+      },
+    };
   }
-  console.log("projectKey", projectKey);
 
-  // get story point and sprint ids
-  const fieldIds = await getFieldIds();
-  console.log("fieldIds", fieldIds);
+  try {
+    console.time("getSprintHealth");
 
-  // get active sprint issues
-  const issues = await getSprintIssues(projectKey, fieldIds);
+    // throw Object.assign(new Error("test"), { jiraStatus: 403 }); // TEST FORBIDDEN 403 ERR
+    // throw Object.assign(new Error("test"), { jiraStatus: 500 }); // TEST 500 ERR
 
-  // normalize issue shape
-  const simpleIssues = issues.map((raw) => normalizeIssue(raw, fieldIds));
+    // get story point and sprint ids
+    const fieldIds = await getFieldIds();
+    // const fieldIds = { ...(await getFieldIds()), storyPoints: null }; -- FOR TESTING
 
-  // calculate sprint progress (done vs. remaining)
-  const progress = getProgress(simpleIssues);
+    // sites without a story points field: don't flag missing estimates
+    const config = {
+      ...DEFAULT_CONFIG,
+      estimatesEnabled: fieldIds.storyPoints !== null,
+    };
 
-  // get flagged issues
-  const flagged = getFlaggedIssues(simpleIssues, new Date());
+    // get active sprint issues
+    const rawIssues = await getSprintIssues(projectKey, fieldIds);
 
-  // get sprint name, dates, and remaining days
-  const sprint = getActiveSprints(issues, fieldIds.sprint);
+    console.log(`fetched ${rawIssues.length} issues`);
 
-  const { score, breakdown } = getScore(flagged);
-  const status = getStatus(score);
+    if (rawIssues.length === 0) {
+      return { empty: "NO_ACTIVE_SPRINT" };
+    }
 
-  /**
-   * + api.asUser(): make the request as the person viewing the page (That's why we have
-   *    the Allow Access button --> they only see data they are already allowed to see)
-   *
-   * + .requestJira(...): sends an HTTP request to this Jira site. Forge fills in the site
-   *    addreass and login for you, so there is no URL or API in the code
-   *
-   * + route`/rest/api/3/myself`: the endpoint path that returns the current user's details
-   */
-  // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
+    // normalize issue shape
+    const simpleIssues = rawIssues.map((raw) => normalizeIssue(raw, fieldIds));
 
-  return {
-    sprint,
-    progress,
-    flagged,
-    score,
-    status,
-    breakdown,
-    config: DEFAULT_CONFIG,
-  };
+    // calculate sprint progress (done vs. remaining)
+    const progress = getProgress(simpleIssues);
+
+    // get flagged issues
+    const flagged = getFlaggedIssues(simpleIssues, new Date(), config);
+
+    // get sprint name, dates, and remaining days
+    const sprint = getActiveSprints(rawIssues, fieldIds.sprint);
+
+    const { score, breakdown } = getScore(flagged, config);
+    const status = getStatus(score, config);
+
+    /**
+     * + api.asUser(): make the request as the person viewing the page (That's why we have
+     *    the Allow Access button --> they only see data they are already allowed to see)
+     *
+     * + .requestJira(...): sends an HTTP request to this Jira site. Forge fills in the site
+     *    addreass and login for you, so there is no URL or API in the code
+     *
+     * + route`/rest/api/3/myself`: the endpoint path that returns the current user's details
+     */
+    // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
+
+    console.timeEnd("getSprintHealth");
+
+    return {
+      sprint,
+      progress,
+      flagged,
+      score,
+      status,
+      breakdown,
+      config,
+    };
+  } catch (err) {
+    if (isConsentError(err)) throw err;
+
+    // Full details go the logs
+    console.log("getSprintHealth failed", err.jiraStatus, err.message);
+
+    return {
+      error: {
+        code: toErrorCode(err.jiraStatus),
+        message: "Couldn't read sprint data from Jira",
+      },
+    };
+  }
 });
 
 export const handler = resolver.getDefinitions();

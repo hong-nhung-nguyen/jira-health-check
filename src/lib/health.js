@@ -91,7 +91,7 @@ export const getFlags = (issue, now = new Date(), config = DEFAULT_CONFIG) => {
     flags.push("unassigned");
   }
 
-  if (issue.points === null) {
+  if (config.estimatesEnabled !== false && issue.points === null) {
     flags.push("unestimated");
   }
 
