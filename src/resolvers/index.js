@@ -36,10 +36,14 @@ resolver.define("getSprintHealth", async (req) => {
   console.log("fieldIds", fieldIds);
 
   // get active sprint issues
-  const issues = await getSprintIssues(projectKey, fieldIds);
+  const rawIssues = await getSprintIssues(projectKey, fieldIds);
+
+  if (rawIssues.length === 0) {
+    return { empty: "NO_ACTIVE_SPRINT" };
+  }
 
   // normalize issue shape
-  const simpleIssues = issues.map((raw) => normalizeIssue(raw, fieldIds));
+  const simpleIssues = rawIssues.map((raw) => normalizeIssue(raw, fieldIds));
 
   // calculate sprint progress (done vs. remaining)
   const progress = getProgress(simpleIssues);

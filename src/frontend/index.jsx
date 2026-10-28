@@ -31,6 +31,17 @@ const App = () => {
 
   if (!data) return <Spinner size="large" label="Loading sprint health" />;
 
+  if (data.empty === "NO_ACTIVE_SPRINT") {
+    return (
+      <SectionMessage appearance="information" title="No active sprint">
+        <Text>
+          Start a sprint with work items in it from the Backlog to see its
+          health.
+        </Text>
+      </SectionMessage>
+    );
+  }
+
   return (
     // space.300: sets 24px gap between the children of a Stack
     <Stack space="space.300">
