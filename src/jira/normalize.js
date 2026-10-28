@@ -10,7 +10,12 @@ export const normalizeIssue = (raw, fieldIds) => {
     summary: f.summary ?? "",
     statusName: f.status?.name ?? "",
     statusCategory: f.status?.statusCategory?.key ?? "new", // "new" | "indeterminate" | "done"
+    /**
+     * UI Kit's User component shows a real Jira avatar, but it needs the accountID
+     * not the displayed name
+     */
     assignee: f.assignee?.displayName ?? null, // null = unassigned
+    assigneeId: f.assignee?.accountId ?? null, // for the avatar in the table
     points: typeof points === "number" ? points : null, // null = unestimated, 0 is a real estimate
     statusSince: parseJiraDate(f.statuscategorychangedate),
     url: `/browse/${raw.key}`,

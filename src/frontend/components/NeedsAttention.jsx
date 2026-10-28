@@ -5,31 +5,25 @@ import {
   Link,
   Lozenge,
   Inline,
-  DynamicTable,
-  Box,
-  xcss,
   Stack,
-  SectionMessage,
+  Box,
+  DynamicTable,
+  User,
+  EmptyState,
 } from "@forge/react";
-
-// Extra vertical space in each cell (space.100 = 8px)
-const cellStyle = xcss({ passingBlock: "space.100" });
-const Cell = ({ children }) => <Box xcss={cellStyle}>{children}</Box>;
-
-const FLAG_STYLE = {
-  stuck: { appearance: "removed", label: "Stuck" },
-  unassigned: { appearance: "moved", label: "Unassigned" },
-  unestimated: { appearance: "default", label: "Unestimate" },
-};
+import { cellStyle } from "./styles";
+import { flagStyle } from "./flags";
 
 const MAX_SUMMARY = 60;
 const truncate = (text) =>
   text.length > MAX_SUMMARY ? `${text.slice(0, MAX_SUMMARY - 1)}...` : text;
 
+const Cell = ({ children }) => <Box xcss={cellStyle}>{children}</Box>;
+
 const head = {
   cells: [
     { key: "key", content: "Key" },
-    { key: "summary", content: "Summary" },
+    { key: "summar", content: "Summar" },
     { key: "flags", content: "Flags" },
     { key: "assignee", content: "Assignee" },
     { key: "days", content: "Days in status" },
@@ -49,15 +43,22 @@ const toRow = (issue) => ({
         </Cell>
       ),
     },
-    { key: "summary", content: <Cell>{truncate(issue.summary)}</Cell> },
+    {
+      key: "summary",
+      content: (
+        <Cell>
+          <Text>{truncate(issue.summary)}</Text>
+        </Cell>
+      ),
+    },
     {
       key: "flags",
       content: (
         <Cell>
-          <Inline space="space.050">
+          <Inline space="space.050" shouldWrap>
             {issue.flags.map((flag) => (
-              <Lozenge key={flag} appearance={FLAG_STYLE[flag].appearance}>
-                {FLAG_STYLE[flag].label}
+              <Lozenge key={flag} appearance={flagStyle(flag).appearance}>
+                {flagStyle(flag).label}
               </Lozenge>
             ))}
           </Inline>
@@ -66,17 +67,26 @@ const toRow = (issue) => ({
     },
     {
       key: "assignee",
-      content: <Cell>{issue.assignee ?? <Text as="em">Unassigned</Text>}</Cell>,
+      content: (
+        <Cell>
+          {issue.assigneeId ? (
+            <User accountId={issue.assigneeId} />
+          ) : (
+            <Text color="color.text.subtlest">Unassigned</Text>
+          )}
+        </Cell>
+      ),
     },
     {
       key: "days",
-      // only meaningful for in-progress work
       content: (
         <Cell>
-          {issue.statusCategory === "indeterminate" &&
-          issue.daysInStatus != null
-            ? String(issue.daysInStatus)
-            : "-"}
+          <Text>
+            {issue.statusCategory === "indeterminate" &&
+            issue.daysInStatus != null
+              ? String(issue.daysInStatus)
+              : "-"}
+          </Text>
         </Cell>
       ),
     },
@@ -84,12 +94,13 @@ const toRow = (issue) => ({
 });
 
 const NeedsAttention = ({ flagged }) => (
-  <Stack space="space.100">
-    <Heading as="h3">Needs attention ({flagged.length})</Heading>
+  <Stack space="space.150">
+    <Heading as="h3">Needs attention</Heading>
     {flagged.length === 0 ? (
-      <SectionMessage appearance="success" title="All clear 🎉">
-        <Text>No issues need attention in this sprint.</Text>
-      </SectionMessage>
+      <EmptyState
+        header="All clear 🎉"
+        description="No issue need attention in this sprint."
+      />
     ) : (
       <DynamicTable head={head} rows={flagged.map(toRow)} rowsPerPage={10} />
     )}

@@ -15,6 +15,7 @@ test("normalizes a real Jira issue into a simple shape", () => {
   const issue = normalizeIssue(raw, FIELD_IDS);
   assert.deepEqual(Object.keys(issue).sort(), [
     "assignee",
+    "assigneeId",
     "key",
     "points",
     "statusCategory",

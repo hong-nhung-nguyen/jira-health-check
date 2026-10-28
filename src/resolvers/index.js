@@ -51,8 +51,6 @@ resolver.define("getSprintHealth", async (req) => {
   }
 
   try {
-    console.time("getSprintHealth");
-
     // throw Object.assign(new Error("test"), { jiraStatus: 403 }); // TEST FORBIDDEN 403 ERR
     // throw Object.assign(new Error("test"), { jiraStatus: 500 }); // TEST 500 ERR
 
@@ -100,8 +98,6 @@ resolver.define("getSprintHealth", async (req) => {
      * + route`/rest/api/3/myself`: the endpoint path that returns the current user's details
      */
     // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
-
-    console.timeEnd("getSprintHealth");
 
     return {
       sprint,
