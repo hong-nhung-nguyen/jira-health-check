@@ -1,4 +1,4 @@
-export const STUCK_DAYS = 0;
+export const STUCK_DAYS = 3;
 export const PENALTY = {
   stuck: 15,
   unassigned: 10,

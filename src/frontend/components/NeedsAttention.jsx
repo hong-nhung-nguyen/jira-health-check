@@ -9,6 +9,7 @@ import {
   Box,
   xcss,
   Stack,
+  SectionMessage,
 } from "@forge/react";
 
 // Extra vertical space in each cell (space.100 = 8px)
@@ -48,7 +49,7 @@ const toRow = (issue) => ({
         </Cell>
       ),
     },
-    { key: "summary", content: <Cell>truncate(issue.summary)</Cell> },
+    { key: "summary", content: <Cell>{truncate(issue.summary)}</Cell> },
     {
       key: "flags",
       content: (
@@ -85,7 +86,13 @@ const toRow = (issue) => ({
 const NeedsAttention = ({ flagged }) => (
   <Stack space="space.100">
     <Heading as="h3">Needs attention ({flagged.length})</Heading>
-    <DynamicTable head={head} rows={flagged.map(toRow)} rowsPerPage={10} />
+    {flagged.length === 0 ? (
+      <SectionMessage appearance="success" title="All clear 🎉">
+        <Text>No issues need attention in this sprint.</Text>
+      </SectionMessage>
+    ) : (
+      <DynamicTable head={head} rows={flagged.map(toRow)} rowsPerPage={10} />
+    )}
   </Stack>
 );
 
