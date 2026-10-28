@@ -4,6 +4,7 @@ import ForgeReconciler, {
   Stack,
   Spinner,
   SectionMessage,
+  Button,
 } from "@forge/react";
 import { invoke } from "@forge/bridge";
 
@@ -11,25 +12,53 @@ import ScoreHeader from "./components/ScoreHeader";
 import ProgressSection from "./components/ProgressSection";
 import NeedsAttention from "./components/NeedsAttention";
 
+const ERROR_TEXT = {
+  FORBIDDEN:
+    "Sprint Health doesn't have permission to read this project. Ask a Jira admin to update the app.",
+  BAD_REQUEST: "Jira couldn't run the sprint search.",
+  NO_PROJECT_CONTEXT: "Open Sprint Health from a project's tab.",
+  UNKNOWN: "Couldn't load sprint health.",
+};
+
 const App = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const load = () => {
+    setError(null);
+    setData(null);
     invoke("getSprintHealth")
       .then(setData)
       .catch((err) => setError(err.message));
-  }, []);
+  };
+
+  useEffect(load, []);
 
   if (error) {
     return (
       <SectionMessage appearance="error" title="Couldn't load sprint health">
-        <Text>{error}</Text>
+        <Stack space="space.100">
+          <Text>{error}</Text>
+          <Button onClick={load}>Retry</Button>
+        </Stack>
       </SectionMessage>
     );
   }
 
   if (!data) return <Spinner size="large" label="Loading sprint health" />;
+
+  if (data.error) {
+    return (
+      <SectionMessage appearance="error" title="Couldn't load sprint health">
+        <Stack space="space.100">
+          <Text>{ERROR_TEXT[data.error.code] ?? ERROR_TEXT.UNKNOWN}</Text>
+          {data.error.code !== "FORBIDDEN" && (
+            <Button onClick={load}>Retry</Button>
+          )}
+        </Stack>
+      </SectionMessage>
+    );
+  }
 
   if (data.empty === "NO_ACTIVE_SPRINT") {
     return (

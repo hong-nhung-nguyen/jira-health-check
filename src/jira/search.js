@@ -2,6 +2,8 @@ import api, { route } from "@forge/api";
 
 export const getSprintIssues = async (projectKey, fieldIds) => {
   const jql = `project = "${projectKey}" AND sprint in openSprints() ORDER BY rank`;
+  // const jql = `project = "${projectKey}" AND AND sprint in openSprints() ORDER BY rank`; // FOR TESTING
+
   // sprint in openSprints(): showing everything in the sprints running right now (started but not yet finished)
   const fields = [
     "summary",
@@ -33,8 +35,13 @@ export const getSprintIssues = async (projectKey, fieldIds) => {
       },
       body: JSON.stringify({ jql, fields, maxResults: 100, nextPageToken }), // what are we searching for
     });
-    if (!res.ok)
-      throw new Error(`Search faild: ${res.status} ${await res.text()}`);
+
+    // jiraStatus: our error from a jira response
+    if (!res.ok) {
+      const err = new Error(`Search failed: ${res.status} ${await res.text()}`);
+      err.jiraStatus = res.status;
+      throw err;
+    }
 
     const page = await res.json();
     issues.push(...page.issues);

@@ -19,6 +19,10 @@ export const pickFieldIds = (fields) => {
 // Field IDs belong to the site, not to individual items
 export const getFieldIds = async () => {
   const res = await api.asUser().requestJira(route`/rest/api/3/field`);
-  if (!res.ok) throw new Error(`Field lookup failed: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Field lookup failed: ${res.status}`);
+    err.jiraStatus = res.status;
+    throw err;
+  }
   return pickFieldIds(await res.json());
 };
