@@ -13,7 +13,7 @@ export const normalizeIssue = (raw, fieldIds) => {
     assignee: f.assignee?.displayName ?? null, // null = unassigned
     points: typeof points === "number" ? points : null, // null = unestimated, 0 is a real estimate
     statusSince: parseJiraDate(f.statuscategorychangedate),
-    url: `${new URL(raw.self).origin}/browse/${raw.key}`,
+    url: `/browse/${raw.key}`,
   };
 };
 

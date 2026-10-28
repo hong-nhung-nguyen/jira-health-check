@@ -1,21 +1,49 @@
 import React, { useEffect, useState } from "react";
-import ForgeReconciler, { Text } from "@forge/react";
+import ForgeReconciler, {
+  Text,
+  Stack,
+  Spinner,
+  SectionMessage,
+} from "@forge/react";
 import { invoke } from "@forge/bridge";
+
+import ScoreHeader from "./components/ScoreHeader";
+import ProgressSection from "./components/ProgressSection";
+import NeedsAttention from "./components/NeedsAttention";
 
 const App = () => {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    invoke("getSprintHealth", { example: "my-invoke-variable" })
-      .then((result) => {
-        console.log(JSON.stringify(result, null, 2));
-        setData(result);
-      })
-      .catch((err) => setData(`Error: ${err.message}`));
+    invoke("getSprintHealth")
+      .then(setData)
+      .catch((err) => setError(err.message));
   }, []);
+
+  if (error) {
+    return (
+      <SectionMessage appearance="error" title="Couldn't load sprint health">
+        <Text>{error}</Text>
+      </SectionMessage>
+    );
+  }
+
+  if (!data) return <Spinner size="large" label="Loading sprint health" />;
+
   return (
-    <>
-      <Text>{data ? JSON.stringify(data) : "Loading..."}</Text>
-    </>
+    // space.300: sets 24px gap between the children of a Stack
+    <Stack space="space.300">
+      <ScoreHeader
+        sprint={data.sprint}
+        score={data.score}
+        status={data.status}
+        breakdown={data.breakdown}
+        config={data.config}
+      />
+      <ProgressSection progress={data.progress} />
+      <NeedsAttention flagged={data.flagged} />
+    </Stack>
   );
 };
 
