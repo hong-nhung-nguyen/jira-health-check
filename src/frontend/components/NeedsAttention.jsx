@@ -12,12 +12,22 @@ import {
   Button,
   EmptyState,
   Badge,
+  xcss,
 } from "@forge/react";
 import FixIssueModal from "./FixIssueModal";
 import { cellStyle } from "./styles";
-import { flagStyle } from "./flags";
+import { FLAG_ORDER, flagStyle } from "./flags";
 
 const FIXABLE = ["unassigned", "unestimated"];
+
+// small status dot in front of the heading
+const dotStyle = (color) =>
+  xcss({
+    width: "8px",
+    height: "8px",
+    borderRadius: "radius.full",
+    backgroundColor: color,
+  });
 
 const MAX_SUMMARY = 60;
 const truncate = (text) =>
@@ -127,29 +137,94 @@ const toRow = (issue, onFix) => ({
   ],
 });
 
+const TableHeader = ({ total, counts, filter, onFilter }) => {
+  const dotColor =
+    counts.stuck > 0 ? "color.icon.danger" : "color.icon.warning";
+
+  return (
+    <Inline
+      spread="space-between"
+      alignBlock="center"
+      shoudlWrap
+      space="space.100"
+    >
+      <Inline space="space.100" alignBlock="center">
+        <Box xcss={dotStyle(dotColor)} />
+        <Heading size="medium">Needs attention</Heading>
+        <Badge>{total}</Badge>
+      </Inline>
+
+      <Inline space="space.075" alignBlock="center">
+        <Button
+          spacing="compact"
+          appearance={filter === "all" ? "primary" : "default"}
+          onClick={() => onFilter("all")}
+        >
+          All ({total})
+        </Button>
+        {FLAG_ORDER.filter((flag) => counts[flag] > 0).map((flag) => (
+          <Button
+            key={flag}
+            spacing="compact"
+            appearance={filter === flag ? "primary" : "default"}
+            onClick={() => onFilter(flag)}
+          >
+            {flagStyle(flag).label} ({counts[flag]})
+          </Button>
+        ))}
+      </Inline>
+    </Inline>
+  );
+};
+
 const NeedsAttention = ({ flagged, onChanged }) => {
   const [editing, setEditing] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  // Issues per flag
+  const counts = Object.fromEntries(
+    FLAG_ORDER.map((flag) => [
+      flag,
+      flagged.filter((i) => i.flags.includes(flag)).length,
+    ]),
+  );
+
+  // If a fix empties the current filter, fall back to All instead of showing an empty table
+  const active = filter !== "all" && counts[filter] === 0 ? "all" : filter;
+  const visible =
+    active === "all"
+      ? flagged
+      : flagged.filter((i) => i.flags.includes(active));
 
   const handleSaved = () => {
     setEditing(null);
     onChanged();
   };
+
   return (
-    <Stack space="space.150">
-      <Inline>
-        <Heading size="medium">Needs attention</Heading>
-      </Inline>
+    <Stack space="space.200">
       {flagged.length === 0 ? (
-        <EmptyState
-          header="All clear 🎉"
-          description="No issue need attention in this sprint."
-        />
+        <>
+          <Heading size="small">Needs attention</Heading>
+          <EmptyState
+            header="All clear 🎉"
+            description="No issues need attention in this sprint."
+          />
+        </>
       ) : (
-        <DynamicTable
-          head={head}
-          rows={flagged.map((issue) => toRow(issue, setEditing))}
-          rowsPerPage={10}
-        />
+        <>
+          <TableHeader
+            total={flagged.length}
+            counts={counts}
+            filter={active}
+            onFilter={setFilter}
+          />
+          <DynamicTable
+            head={head}
+            rows={visible.map((issue) => toRow(issue, setEditing))}
+            rowsPerPage={10}
+          />
+        </>
       )}
       {editing && (
         <FixIssueModal

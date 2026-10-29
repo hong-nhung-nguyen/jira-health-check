@@ -15,7 +15,6 @@ import { pageStyle } from "./components/styles";
 import SprintHeader from "./components/SprintHeader";
 import HealthCard from "./components/HealthCard";
 import ProgressCard from "./components/ProgressCard";
-import AttentionCard from "./components/AttentionCard";
 import NeedsAttention from "./components/NeedsAttention";
 
 const ERROR_TEXT = {
@@ -119,7 +118,6 @@ const App = () => {
             breakdown={data.breakdown}
           />
           <ProgressCard progress={data.progress} />
-          <AttentionCard flagged={data.flagged} breakdown={data.breakdown} />
         </Inline>
 
         <NeedsAttention flagged={data.flagged} onChanged={refresh} />
