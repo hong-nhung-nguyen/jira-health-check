@@ -69,8 +69,6 @@ resolver.define("getSprintHealth", async (req) => {
     // get active sprint issues
     const rawIssues = await getSprintIssues(projectKey, fieldIds);
 
-    console.log(`fetched ${rawIssues.length} issues`);
-
     if (rawIssues.length === 0) {
       return { empty: "NO_ACTIVE_SPRINT" };
     }
@@ -90,17 +88,6 @@ resolver.define("getSprintHealth", async (req) => {
     const { score, breakdown } = getScore(flagged, config);
     const status = getStatus(score, config);
 
-    /**
-     * + api.asUser(): make the request as the person viewing the page (That's why we have
-     *    the Allow Access button --> they only see data they are already allowed to see)
-     *
-     * + .requestJira(...): sends an HTTP request to this Jira site. Forge fills in the site
-     *    addreass and login for you, so there is no URL or API in the code
-     *
-     * + route`/rest/api/3/myself`: the endpoint path that returns the current user's details
-     */
-    // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
-
     return {
       sprint,
       progress,
@@ -112,9 +99,6 @@ resolver.define("getSprintHealth", async (req) => {
     };
   } catch (err) {
     if (isConsentError(err)) throw err;
-
-    // Full details go the logs
-    console.log("getSprintHealth failed", err.jiraStatus, err.message);
 
     return {
       error: {
@@ -145,7 +129,7 @@ resolver.define("getAssignableUsers", async (req) => {
     return { users: await getAssignableUsers(issueKey) };
   } catch (err) {
     if (isConsentError(err)) throw err;
-    console.error("getAssignableUsers faild", err.jiraStatus, err.message);
+    console.error("getAssignableUsers failed", err.jiraStatus, err.message);
     return {
       error: {
         code: toErrorCode(err.jiraStatus),
