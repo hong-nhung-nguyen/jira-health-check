@@ -21,7 +21,7 @@ const SprintHeader = ({ sprint }) => {
   const subtitle = describeDates(sprint);
   return (
     <Stack space="space.050">
-      <Heading>{sprint?.name ?? "Active sprint"}</Heading>
+      <Heading size="large">{sprint?.name ?? "Active sprint"}</Heading>
       {subtitle && <Text color="color.text.subtlest">{subtitle}</Text>}
     </Stack>
   );

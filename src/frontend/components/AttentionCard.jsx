@@ -9,7 +9,7 @@ const AttentionCard = ({ flagged, breakdown }) => (
       <Text weight="medium" color="color.text.subtle">
         Needs attention
       </Text>
-      <Heading as="h3">
+      <Heading size="medium">
         {flagged.length} {flagged.length === 1 ? "issue" : "issues"}
       </Heading>
       <Stack space="space.025">

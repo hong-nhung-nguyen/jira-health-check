@@ -3,17 +3,14 @@ import { Text, Lozenge, Badge, Inline, Stack, Box, xcss } from "@forge/react";
 import { cardStyle } from "./styles";
 
 const trackStyle = xcss({
-  display: "flex",
   width: "100%",
   height: "8px",
-  borderRadius: "border.radius.200",
+  borderRadius: "radius.large",
   overflow: "hidden",
 });
 
 const segmentStyle = (color, count) =>
   xcss({ flexGrow: count, height: "8px", backgroundColor: color });
-
-const percentOf = (count, total) => (total > 0 ? (count / total) * 100 : 0);
 
 const ProgressCard = ({ progress }) => {
   const { total, done, inProgress, todo, points, percentDone } = progress;

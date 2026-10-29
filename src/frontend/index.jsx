@@ -49,6 +49,12 @@ const App = () => {
       .catch((err) => setError(err.message));
   };
 
+  const refresh = () => {
+    invoke("getSprintHealth")
+      .then(setData)
+      .catch((err) => setError(err.message));
+  };
+
   useEffect(load, []);
 
   // Order matters: each check makes the next one safe
@@ -116,7 +122,7 @@ const App = () => {
           <AttentionCard flagged={data.flagged} breakdown={data.breakdown} />
         </Inline>
 
-        <NeedsAttention flagged={data.flagged} />
+        <NeedsAttention flagged={data.flagged} onChanged={refresh} />
       </Stack>
     </Page>
   );

@@ -21,7 +21,7 @@ const HealthCard = ({ score, status, breakdown }) => {
         </Text>
 
         <Inline space="space.100" alignBlock="center">
-          <Heading as="h3">{score} / 100</Heading>
+          <Heading size="medium">{score} / 100</Heading>
           <Lozenge appearance={style.appearance} isBold>
             {style.label}
           </Lozenge>

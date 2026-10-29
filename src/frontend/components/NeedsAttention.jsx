@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Heading,
   Text,
@@ -9,28 +9,42 @@ import {
   Box,
   DynamicTable,
   User,
+  Button,
   EmptyState,
+  Badge,
 } from "@forge/react";
+import FixIssueModal from "./FixIssueModal";
 import { cellStyle } from "./styles";
 import { flagStyle } from "./flags";
+
+const FIXABLE = ["unassigned", "unestimated"];
 
 const MAX_SUMMARY = 60;
 const truncate = (text) =>
   text.length > MAX_SUMMARY ? `${text.slice(0, MAX_SUMMARY - 1)}...` : text;
 
-const Cell = ({ children }) => <Box xcss={cellStyle}>{children}</Box>;
+const Cell = ({ children, center = false }) => (
+  <Box xcss={cellStyle}>
+    <Inline alignBlock="center" alignInline={center ? "center" : "start"}>
+      {children}
+    </Inline>
+  </Box>
+);
 
 const head = {
   cells: [
-    { key: "key", content: "Key" },
-    { key: "summar", content: "Summar" },
-    { key: "flags", content: "Flags" },
-    { key: "assignee", content: "Assignee" },
-    { key: "days", content: "Days in status" },
+    // width = % of the table; adds up to 100
+    { key: "key", content: "Key", width: 7 },
+    { key: "summary", content: "Summary", width: 30 },
+    { key: "flags", content: "Flags", width: 14 }, // just fits [Unassigned] [No estimate]
+    { key: "assignee", content: "Assignee", width: 15 },
+    { key: "points", content: "Story point estimate", width: 13 },
+    { key: "days", content: "Days in status", width: 12 },
+    { key: "actions", content: "Actions", width: 9 },
   ],
 };
 
-const toRow = (issue) => ({
+const toRow = (issue, onFix) => ({
   key: issue.key,
   cells: [
     {
@@ -55,7 +69,7 @@ const toRow = (issue) => ({
       key: "flags",
       content: (
         <Cell>
-          <Inline space="space.050" shouldWrap>
+          <Inline space="space.050">
             {issue.flags.map((flag) => (
               <Lozenge key={flag} appearance={flagStyle(flag).appearance}>
                 {flagStyle(flag).label}
@@ -78,6 +92,14 @@ const toRow = (issue) => ({
       ),
     },
     {
+      key: "points",
+      content: (
+        <Cell>
+          <Text>{issue.points ?? "-"}</Text>
+        </Cell>
+      ),
+    },
+    {
       key: "days",
       content: (
         <Cell>
@@ -90,21 +112,54 @@ const toRow = (issue) => ({
         </Cell>
       ),
     },
+    {
+      key: "actions",
+      content: (
+        <Cell>
+          {issue.flags.some((f) => FIXABLE.includes(f)) && (
+            <Button appearance="subtle" onClick={() => onFix(issue)}>
+              Fix
+            </Button>
+          )}
+        </Cell>
+      ),
+    },
   ],
 });
 
-const NeedsAttention = ({ flagged }) => (
-  <Stack space="space.150">
-    <Heading as="h3">Needs attention</Heading>
-    {flagged.length === 0 ? (
-      <EmptyState
-        header="All clear 🎉"
-        description="No issue need attention in this sprint."
-      />
-    ) : (
-      <DynamicTable head={head} rows={flagged.map(toRow)} rowsPerPage={10} />
-    )}
-  </Stack>
-);
+const NeedsAttention = ({ flagged, onChanged }) => {
+  const [editing, setEditing] = useState(null);
+
+  const handleSaved = () => {
+    setEditing(null);
+    onChanged();
+  };
+  return (
+    <Stack space="space.150">
+      <Inline>
+        <Heading size="medium">Needs attention</Heading>
+      </Inline>
+      {flagged.length === 0 ? (
+        <EmptyState
+          header="All clear 🎉"
+          description="No issue need attention in this sprint."
+        />
+      ) : (
+        <DynamicTable
+          head={head}
+          rows={flagged.map((issue) => toRow(issue, setEditing))}
+          rowsPerPage={10}
+        />
+      )}
+      {editing && (
+        <FixIssueModal
+          issue={editing}
+          onClose={() => setEditing(null)}
+          onSaved={handleSaved}
+        />
+      )}
+    </Stack>
+  );
+};
 
 export default NeedsAttention;
