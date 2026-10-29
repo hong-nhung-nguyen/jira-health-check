@@ -8,6 +8,19 @@ unestimated issues can be fixed right from the page.
 
 ![Sprint Health on the BT sprint: 70 / 100 At risk](docs/screenshots/01-bt-default.png)
 
+## Try it
+
+A **Jira site admin** can install Sprint Health on a site with this link:
+
+👉 **[Install Sprint Health](https://developer.atlassian.com/console/install/aac4fd28-d7a5-45fa-b106-93fb7d8ad7ab?signature=AYABeE%2BvinFBpTujDA0c7KtdS3AAAAADAAdhd3Mta21zAEthcm46YXdzOmttczp1cy13ZXN0LTI6NzA5NTg3ODM1MjQzOmtleS83MDVlZDY3MC1mNTdjLTQxYjUtOWY5Yi1lM2YyZGNjMTQ2ZTcAuAECAQB4CxqLTo9l4lqXuFjNim1xJM%2Bp%2F3TVP9xHS2BrU5DRRucBTW98wO%2F6nwg0NWDTkUm2pQAAAH4wfAYJKoZIhvcNAQcGoG8wbQIBADBoBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDKWZn75Ud1pWolkznAIBEIA706P2BIOtsJev%2FF5CqNsZLI6sPbUAgvm3DZAmV7f0OmCvGnAmV5Sp1K2JI5aP2%2B6zzc74lRtghcS0sKEAB2F3cy1rbXMAS2Fybjphd3M6a21zOmV1LXdlc3QtMTo3MDk1ODc4MzUyNDM6a2V5LzQ2MzBjZTZiLTAwYzMtNGRlMi04NzdiLTYyN2UyMDYwZTVjYwC4AQICAHi9bVMAkme4qVQX1fQHo6ePw3H40A7cGfz7yrmSfBWMXgGZk1G7FEn%2BAUDZt9ZNzoAQAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM6HniD7kpoJbAVpfGAgEQgDtRjFoX2odsRrxmJer4RWQnU8l4nA1dX1S59QiPC0yMLjdQuzWQLmahNB6YWe5ORQMqP5aLzUxB8XVgkAAHYXdzLWttcwBLYXJuOmF3czprbXM6dXMtZWFzdC0xOjcwOTU4NzgzNTI0MzprZXkvNmMxMjBiYTAtNGNkNS00OTg1LWI4MmUtNDBhMDQ5NTJjYzU3ALgBAgIAeDYASx0XCjkny4iLV6vz%2BKtEGSGT6kdt0QRpkn6D%2FlVEAasRaSMu92Tb8Uyarg21tBwAAAB%2BMHwGCSqGSIb3DQEHBqBvMG0CAQAwaAYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAwctzkDY4k0HN3%2FgfoCARCAO3HTuO9vBm2GooL4nkQmYYAyRDlLwxa7vsNgBtNWdR%2F6odr9mue297tobrjZ0IFIvNYtT0y%2BR5nErfR0AgAAAAAMAAAQAAAAAAAAAAAAAAAAADpX5waaEGNPy%2Fbo0pwROVn%2F%2F%2F%2F%2FAAAAAQAAAAAAAAAAAAAAAQAAADIO%2FUzAEqyhsO3h3c8YkbxccwOI6MWEhscc8C2t0BKTlrmTL62f8nPSX3oWvMCgKivTIey500RnTVTc%2FCMoLnP%2BhCY%3D&product=jira)**
+
+1. Open the link and choose your Jira site.
+2. Review the permissions (read sprint data; edit an issue only when you save a fix) and click **Install**.
+3. Open any Software space → **Sprint Health** in the space navigation → **Allow access**.
+
+> Best tried on a sandbox or test site first. See [PRIVACY.md](PRIVACY.md) for what the app reads
+> and edits.
+
 ---
 
 ## 1. What the app does
