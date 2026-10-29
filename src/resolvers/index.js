@@ -10,6 +10,8 @@ import {
   getScore,
   getStatus,
 } from "../lib/health";
+import { getAssignableUsers, updateIssue } from "../jira/update";
+import { parsePoints, buildFixFields } from "../lib/fix";
 import { DEFAULT_CONFIG } from "../lib/config";
 const resolver = new Resolver(); // Creates a resolver
 
@@ -51,14 +53,12 @@ resolver.define("getSprintHealth", async (req) => {
   }
 
   try {
-    console.time("getSprintHealth");
-
     // throw Object.assign(new Error("test"), { jiraStatus: 403 }); // TEST FORBIDDEN 403 ERR
     // throw Object.assign(new Error("test"), { jiraStatus: 500 }); // TEST 500 ERR
 
     // get story point and sprint ids
     const fieldIds = await getFieldIds();
-    // const fieldIds = { ...(await getFieldIds()), storyPoints: null }; -- FOR TESTING
+    // const fieldIds = { ...(await getFieldIds()), storyPoints: null }; //-- FOR TESTING
 
     // sites without a story points field: don't flag missing estimates
     const config = {
@@ -101,8 +101,6 @@ resolver.define("getSprintHealth", async (req) => {
      */
     // const res = await api.asUser().requestJira(route`/rest/api/3/myself`);
 
-    console.timeEnd("getSprintHealth");
-
     return {
       sprint,
       progress,
@@ -122,6 +120,75 @@ resolver.define("getSprintHealth", async (req) => {
       error: {
         code: toErrorCode(err.jiraStatus),
         message: "Couldn't read sprint data from Jira",
+      },
+    };
+  }
+});
+
+// Only allow issues from the project the page is open in
+const isInProject = (req, issueKey) => {
+  const projectKey = req.context?.extension?.project?.key;
+  return (
+    Boolean(projectKey) &&
+    typeof issueKey === "string" &&
+    issueKey.startsWith(`${projectKey}-`)
+  );
+};
+
+resolver.define("getAssignableUsers", async (req) => {
+  const { issueKey } = req.payload;
+  if (!isInProject(req, issueKey)) {
+    return { error: { code: "BAD_REQUEST" } };
+  }
+
+  try {
+    return { users: await getAssignableUsers(issueKey) };
+  } catch (err) {
+    if (isConsentError(err)) throw err;
+    console.error("getAssignableUsers faild", err.jiraStatus, err.message);
+    return {
+      error: {
+        code: toErrorCode(err.jiraStatus),
+      },
+    };
+  }
+});
+
+resolver.define("fixIssue", async (req) => {
+  const { issueKey, accountId, points } = req.payload;
+  if (!isInProject(req, issueKey)) {
+    return {
+      error: {
+        code: "BAD_REQUEST",
+      },
+    };
+  }
+
+  try {
+    const fieldIds = await getFieldIds();
+    /**
+     * payload: data that frontend sends
+     * validate again on the server: never trust what the frontend sends
+     */
+    const fields = buildFixFields(
+      { accountId, points: parsePoints(points) },
+      fieldIds.storyPoints,
+    );
+    if (Object.keys(fields).length === 0)
+      return {
+        error: {
+          code: "BAD_REQUEST",
+        },
+      };
+
+    await updateIssue(issueKey, fields);
+    return { ok: true };
+  } catch (err) {
+    if (isConsentError(err)) throw err;
+    console.error("fixIssue failed", err.jiraStatus, err.message);
+    return {
+      error: {
+        code: toErrorCode(err.jiraStatus),
       },
     };
   }

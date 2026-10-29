@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import ForgeReconciler, {
   Text,
   Stack,
+  Inline,
+  Box,
   Spinner,
   SectionMessage,
   Button,
-  Box,
-  xcss,
+  EmptyState,
 } from "@forge/react";
 import { invoke } from "@forge/bridge";
 
-import ScoreHeader from "./components/ScoreHeader";
-import ProgressSection from "./components/ProgressSection";
+import { pageStyle } from "./components/styles";
+import SprintHeader from "./components/SprintHeader";
+import HealthCard from "./components/HealthCard";
+import ProgressCard from "./components/ProgressCard";
 import NeedsAttention from "./components/NeedsAttention";
 
 const ERROR_TEXT = {
@@ -22,9 +25,16 @@ const ERROR_TEXT = {
   UNKNOWN: "Couldn't load sprint health.",
 };
 
-// layout: blank removes Jira's page padding --> adds its own
-const pageStyle = xcss({ padding: "space.300" });
 const Page = ({ children }) => <Box xcss={pageStyle}>{children}</Box>;
+
+const ErrorMessage = ({ text, onRetry }) => (
+  <SectionMessage appearance="error" title="Couldn't load sprint health">
+    <Stack space="space.100">
+      <Text>{text}</Text>
+      {onRetry && <Button onClick={onRetry}>Retry</Button>}
+    </Stack>
+  </SectionMessage>
+);
 
 const App = () => {
   const [data, setData] = useState(null);
@@ -38,20 +48,21 @@ const App = () => {
       .catch((err) => setError(err.message));
   };
 
+  const refresh = () => {
+    invoke("getSprintHealth")
+      .then(setData)
+      .catch((err) => setError(err.message));
+  };
+
   useEffect(load, []);
 
-  if (error) {
+  // Order matters: each check makes the next one safe
+  if (error)
     return (
       <Page>
-        <SectionMessage appearance="error" title="Couldn't load sprint health">
-          <Stack space="space.100">
-            <Text>{error}</Text>
-            <Button onClick={load}>Retry</Button>
-          </Stack>
-        </SectionMessage>
+        <ErrorMessage text={error} onRetry={load} />
       </Page>
     );
-  }
 
   if (!data)
     return (
@@ -61,16 +72,13 @@ const App = () => {
     );
 
   if (data.error) {
+    const { code } = data.error;
     return (
       <Page>
-        <SectionMessage appearance="error" title="Couldn't load sprint health">
-          <Stack space="space.100">
-            <Text>{ERROR_TEXT[data.error.code] ?? ERROR_TEXT.UNKNOWN}</Text>
-            {data.error.code !== "FORBIDDEN" && (
-              <Button onClick={load}>Retry</Button>
-            )}
-          </Stack>
-        </SectionMessage>
+        <ErrorMessage
+          text={ERROR_TEXT[code] ?? ERROR_TEXT.UNKNOWN}
+          onRetry={code === "FORBIDDEN" ? null : load}
+        />
       </Page>
     );
   }
@@ -78,31 +86,23 @@ const App = () => {
   if (data.empty === "NO_ACTIVE_SPRINT") {
     return (
       <Page>
-        <SectionMessage appearance="information" title="No active sprint">
-          <Text>
-            Start a sprint with work items in it from the Backlog to see its
-            health.
-          </Text>
-        </SectionMessage>
+        <EmptyState
+          header="No active sprint"
+          description="Start a sprint with work items in it from the Backlog to see its health."
+        />
       </Page>
     );
   }
 
   return (
-    // space.300: sets 24px gap between the children of a Stack
     <Page>
       <Stack space="space.300">
-        <ScoreHeader
-          sprint={data.sprint}
-          score={data.score}
-          status={data.status}
-          breakdown={data.breakdown}
-          config={data.config}
-        />
+        <SprintHeader sprint={data.sprint} />
+
         {!data.config.estimatesEnabled && (
           <SectionMessage
             appearance="warning"
-            title="Story points are not set up"
+            title="Story points aren't set up"
           >
             <Text>
               No story points field was found on this site, so estimate checks
@@ -110,8 +110,17 @@ const App = () => {
             </Text>
           </SectionMessage>
         )}
-        <ProgressSection progress={data.progress} />
-        <NeedsAttention flagged={data.flagged} />
+
+        <Inline space="space.200" alignBlock="stretch" shouldWrap>
+          <HealthCard
+            score={data.score}
+            status={data.status}
+            breakdown={data.breakdown}
+          />
+          <ProgressCard progress={data.progress} />
+        </Inline>
+
+        <NeedsAttention flagged={data.flagged} onChanged={refresh} />
       </Stack>
     </Page>
   );
