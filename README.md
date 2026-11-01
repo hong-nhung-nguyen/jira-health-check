@@ -2,17 +2,15 @@
 
 [![CI](https://github.com/hong-nhung-nguyen/jira-health-check/actions/workflows/ci.yml/badge.svg)](https://github.com/hong-nhung-nguyen/jira-health-check/actions/workflows/ci.yml)
 
-### 🎥 [Watch the 3-minute demo](https://www.loom.com/share/20376a32529e4a909f8885acfb1168ee)
-
 <a href="https://www.loom.com/share/20376a32529e4a909f8885acfb1168ee">
-  <img width="600" alt="Sprint Health demo video. Click to watch" src="https://www.loom.com/v1/videos/20376a32529e4a909f8885acfb1168ee/thumbnail.gif">
+  <img width="100%" alt="Sprint Health demo video. Click to watch" src="https://www.loom.com/v1/videos/20376a32529e4a909f8885acfb1168ee/thumbnail.gif">
 </a>
-
-![Sprint Health on the BT sprint: 70 / 100 At risk](docs/screenshots/01-bt-default.png)
 
 A Jira project page that shows how the current sprint is going at a glance: what's done, what's left,
 which issues need attention, and an overall **green / amber / red** health score. Unassigned and
 unestimated issues can be fixed right from the page.
+
+![Sprint Health on the BT sprint: 70 / 100 At risk](docs/screenshots/01-bt-default.png)
 
 ## Try it
 
