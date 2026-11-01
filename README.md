@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/hong-nhung-nguyen/jira-health-check/actions/workflows/ci.yml/badge.svg)](https://github.com/hong-nhung-nguyen/jira-health-check/actions/workflows/ci.yml)
 
+### 🎥 [Watch the 3-minute demo](https://www.loom.com/share/20376a32529e4a909f8885acfb1168ee)
+
+[![Sprint Health demo video](https://cdn.loom.com/sessions/thumbnails/20376a32529e4a909f8885acfb1168ee-with-play.gif)](https://www.loom.com/share/20376a32529e4a909f8885acfb1168ee)
+
 A Jira project page that shows how the current sprint is going at a glance: what's done, what's left,
 which issues need attention, and an overall **green / amber / red** health score. Unassigned and
 unestimated issues can be fixed right from the page.
